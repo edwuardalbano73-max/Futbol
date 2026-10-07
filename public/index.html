@@ -1,142 +1,290 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>ScoreLive</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
-  <header class="topbar">
 
-    <div class="logo">
-      <span>⚽</span>
-      <strong>ScoreLive</strong>
-    </div>
+<header class="topbar">
 
-    <nav>
-      <button class="nav-btn active" data-section="todos">
-        Todos
-      </button>
+  <div class="logo">
 
-      <button class="nav-btn" data-section="live">
-        🔴 En vivo
-      </button>
+    <span>⚽</span>
 
-      <button class="nav-btn" data-section="upcoming">
-        Próximos
-      </button>
+    <strong>ScoreLive</strong>
 
-      <button class="nav-btn" data-section="finished">
-        Resultados
-      </button>
-    </nav>
-
-  </header>
+  </div>
 
 
-  <main>
+  <nav>
 
-    <section class="hero">
-
-      <div>
-        <p class="small-title">RESULTADOS DEPORTIVOS</p>
-
-        <h1>
-          Partidos de hoy
-        </h1>
-
-        <p id="today">
-          Cargando fecha...
-        </p>
-      </div>
-
-      <div class="live-counter">
-        <span class="live-dot"></span>
-        <span id="liveCount">0</span>
-        en vivo
-      </div>
-
-    </section>
+    <button
+      class="nav-btn active"
+      data-section="todos"
+    >
+      Todos
+    </button>
 
 
-    <section class="tools">
-
-      <div class="search-box">
-        🔎
-        <input
-          type="text"
-          id="search"
-          placeholder="Buscar equipo..."
-        >
-      </div>
-
-      <button class="date-button">
-        📅 Hoy
-      </button>
-
-    </section>
+    <button
+      class="nav-btn"
+      data-section="live"
+    >
+      🔴 En vivo
+    </button>
 
 
-    <section id="liveSection" class="section">
-
-      <div class="section-title">
-        <h2>🔴 En vivo</h2>
-        <span id="liveLabel">0 partidos</span>
-      </div>
-
-      <div id="liveGames" class="games"></div>
-
-    </section>
+    <button
+      class="nav-btn"
+      data-section="upcoming"
+    >
+      Próximos
+    </button>
 
 
-    <section id="upcomingSection" class="section">
+    <button
+      class="nav-btn"
+      data-section="finished"
+    >
+      Resultados
+    </button>
 
-      <div class="section-title">
-        <h2>🕐 Próximos partidos</h2>
-        <span id="upcomingLabel">0 partidos</span>
-      </div>
+  </nav>
 
-      <div id="upcomingGames" class="games"></div>
-
-    </section>
-
-
-    <section id="finishedSection" class="section">
-
-      <div class="section-title">
-        <h2>✅ Resultados</h2>
-        <span id="finishedLabel">0 partidos</span>
-      </div>
-
-      <div id="finishedGames" class="games"></div>
-
-    </section>
+</header>
 
 
-  </main>
+
+<main>
 
 
-  <footer>
+<section class="hero">
 
-    <strong>⚽ ScoreLive</strong>
+  <div>
 
-    <p>
-      Resultados deportivos en un solo lugar.
+    <p class="small-title">
+      RESULTADOS DEPORTIVOS
     </p>
 
-    <small>
-      Actualización automática
-    </small>
 
-  </footer>
+    <h1>
+      Partidos de hoy
+    </h1>
 
 
-  <script src="script.js"></script>
+    <p id="today">
+      Cargando fecha...
+    </p>
+
+  </div>
+
+
+  <div class="live-counter">
+
+    <span class="live-dot"></span>
+
+    <span id="liveCount">
+      0
+    </span>
+
+    en vivo
+
+  </div>
+
+</section>
+
+
+
+<section class="tools">
+
+
+  <div class="search-box">
+
+    🔎
+
+    <input
+      type="text"
+      id="search"
+      placeholder="Buscar equipo o competición..."
+    >
+
+  </div>
+
+
+  <button
+    class="date-button"
+    id="dateButton"
+  >
+    📅 Hoy
+  </button>
+
+
+</section>
+
+
+
+<section
+  id="loading"
+  class="loading"
+>
+
+  <div class="spinner"></div>
+
+  <p>
+    Cargando partidos reales...
+  </p>
+
+</section>
+
+
+
+<section
+  id="errorBox"
+  class="error-box"
+  style="display:none"
+>
+
+  <strong>
+    No se pudieron cargar los partidos.
+  </strong>
+
+  <p id="errorText"></p>
+
+  <button id="retryButton">
+    Intentar nuevamente
+  </button>
+
+</section>
+
+
+
+<section
+  id="liveSection"
+  class="section"
+  style="display:none"
+>
+
+  <div class="section-title">
+
+    <h2>
+      🔴 En vivo
+    </h2>
+
+    <span id="liveLabel">
+      0 partidos
+    </span>
+
+  </div>
+
+
+  <div
+    id="liveGames"
+    class="games"
+  ></div>
+
+</section>
+
+
+
+<section
+  id="upcomingSection"
+  class="section"
+  style="display:none"
+>
+
+  <div class="section-title">
+
+    <h2>
+      🕐 Próximos partidos
+    </h2>
+
+    <span id="upcomingLabel">
+      0 partidos
+    </span>
+
+  </div>
+
+
+  <div
+    id="upcomingGames"
+    class="games"
+  ></div>
+
+</section>
+
+
+
+<section
+  id="finishedSection"
+  class="section"
+  style="display:none"
+>
+
+  <div class="section-title">
+
+    <h2>
+      ✅ Resultados
+    </h2>
+
+    <span id="finishedLabel">
+      0 partidos
+    </span>
+
+  </div>
+
+
+  <div
+    id="finishedGames"
+    class="games"
+  ></div>
+
+</section>
+
+
+</main>
+
+
+
+<footer>
+
+  <strong>
+    ⚽ ScoreLive
+  </strong>
+
+  <p>
+    Resultados deportivos en un solo lugar.
+  </p>
+
+  <small>
+    Los datos se actualizan automáticamente.
+  </small>
+
+</footer>
+
+
+
+<script src="script.js"></script>
+
 
 </body>
+
 </html>
