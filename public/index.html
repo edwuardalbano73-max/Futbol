@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ScoreLive</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+
+    <div class="logo">
+      <span>⚽</span>
+      <strong>ScoreLive</strong>
+    </div>
+
+    <nav>
+      <button class="nav-btn active" data-section="todos">
+        Todos
+      </button>
+
+      <button class="nav-btn" data-section="live">
+        🔴 En vivo
+      </button>
+
+      <button class="nav-btn" data-section="upcoming">
+        Próximos
+      </button>
+
+      <button class="nav-btn" data-section="finished">
+        Resultados
+      </button>
+    </nav>
+
+  </header>
+
+
+  <main>
+
+    <section class="hero">
+
+      <div>
+        <p class="small-title">RESULTADOS DEPORTIVOS</p>
+
+        <h1>
+          Partidos de hoy
+        </h1>
+
+        <p id="today">
+          Cargando fecha...
+        </p>
+      </div>
+
+      <div class="live-counter">
+        <span class="live-dot"></span>
+        <span id="liveCount">0</span>
+        en vivo
+      </div>
+
+    </section>
+
+
+    <section class="tools">
+
+      <div class="search-box">
+        🔎
+        <input
+          type="text"
+          id="search"
+          placeholder="Buscar equipo..."
+        >
+      </div>
+
+      <button class="date-button">
+        📅 Hoy
+      </button>
+
+    </section>
+
+
+    <section id="liveSection" class="section">
+
+      <div class="section-title">
+        <h2>🔴 En vivo</h2>
+        <span id="liveLabel">0 partidos</span>
+      </div>
+
+      <div id="liveGames" class="games"></div>
+
+    </section>
+
+
+    <section id="upcomingSection" class="section">
+
+      <div class="section-title">
+        <h2>🕐 Próximos partidos</h2>
+        <span id="upcomingLabel">0 partidos</span>
+      </div>
+
+      <div id="upcomingGames" class="games"></div>
+
+    </section>
+
+
+    <section id="finishedSection" class="section">
+
+      <div class="section-title">
+        <h2>✅ Resultados</h2>
+        <span id="finishedLabel">0 partidos</span>
+      </div>
+
+      <div id="finishedGames" class="games"></div>
+
+    </section>
+
+
+  </main>
+
+
+  <footer>
+
+    <strong>⚽ ScoreLive</strong>
+
+    <p>
+      Resultados deportivos en un solo lugar.
+    </p>
+
+    <small>
+      Actualización automática
+    </small>
+
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
