@@ -1,12 +1,15 @@
 {
   "name": "scorelive",
-  "version": "1.0.0",
-  "description": "Página de resultados deportivos en vivo",
+  "version": "3.0.0",
+  "description": "ScoreLive - resultados de fútbol en vivo",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
