@@ -1,193 +1,106 @@
-const partidos = [
+const $ = id => document.getElementById(id);
 
-  {
-    id: 1,
-    deporte: "⚽ Fútbol",
-    liga: "Partido internacional",
-    local: "Argentina",
-    visitante: "Brasil",
-    hora: "18:00",
-    estado: "live",
-    localScore: 2,
-    visitanteScore: 1
-  },
+let partidos = [];
 
-  {
-    id: 2,
-    deporte: "⚽ Fútbol",
-    liga: "Partido internacional",
-    local: "España",
-    visitante: "Francia",
-    hora: "20:00",
-    estado: "upcoming",
-    localScore: null,
-    visitanteScore: null
-  },
+let seccionActual = "todos";
 
-  {
-    id: 3,
-    deporte: "⚽ Fútbol",
-    liga: "Partido internacional",
-    local: "Italia",
-    visitante: "Alemania",
-    hora: "21:30",
-    estado: "finished",
-    localScore: 3,
-    visitanteScore: 1
-  },
+let busqueda = "";
 
-  {
-    id: 4,
-    deporte: "⚽ Fútbol",
-    liga: "Liga",
-    local: "Barcelona",
-    visitante: "Atlético de Madrid",
-    hora: "22:00",
-    estado: "upcoming"
-  },
-
-  {
-    id: 5,
-    deporte: "⚽ Fútbol",
-    liga: "Premier League",
-    local: "Liverpool",
-    visitante: "Chelsea",
-    hora: "22:30",
-    estado: "upcoming"
-  }
-
-];
+let fechaActual = "";
 
 
-// Generar más partidos de ejemplo hasta llegar a 50
+function escapeHTML(value = "") {
 
-const equipos = [
-  ["Manchester City", "Arsenal"],
-  ["Real Madrid", "Sevilla"],
-  ["Inter", "Milan"],
-  ["Bayern", "Dortmund"],
-  ["PSG", "Lyon"],
-  ["Benfica", "Porto"],
-  ["Ajax", "PSV"],
-  ["Juventus", "Napoli"],
-  ["River Plate", "Boca Juniors"],
-  ["Flamengo", "Palmeiras"],
-  ["Monterrey", "Tigres"],
-  ["América", "Cruz Azul"],
-  ["LA Galaxy", "Inter Miami"],
-  ["Barcelona", "Valencia"],
-  ["Chelsea", "Tottenham"],
-  ["Arsenal", "Newcastle"],
-  ["Milan", "Roma"],
-  ["Napoli", "Lazio"],
-  ["Leverkusen", "Leipzig"],
-  ["Porto", "Braga"],
-  ["PSV", "Feyenoord"],
-  ["Ajax", "AZ Alkmaar"],
-  ["River Plate", "Racing"],
-  ["Boca Juniors", "San Lorenzo"],
-  ["Colo-Colo", "Universidad de Chile"],
-  ["Atlético Nacional", "Millonarios"],
-  ["Peñarol", "Nacional"],
-  ["Fluminense", "Botafogo"],
-  ["Santos", "Corinthians"],
-  ["Gremio", "Internacional"],
-  ["Vélez", "Independiente"],
-  ["Lanús", "Estudiantes"],
-  ["Valencia", "Villarreal"],
-  ["Betis", "Villarreal"],
-  ["Leicester", "Everton"],
-  ["West Ham", "Fulham"],
-  ["Monaco", "Marseille"],
-  ["Nice", "Lille"],
-  ["Roma", "Fiorentina"],
-  ["Torino", "Genoa"],
-  ["Bologna", "Atalanta"],
-  ["Werder Bremen", "Frankfurt"],
-  ["Stuttgart", "Mainz"],
-  ["Sporting", "Boavista"],
-  ["Galatasaray", "Fenerbahce"]
-];
-
-
-for (let i = partidos.length; i < 50; i++) {
-
-  const equiposPartido = equipos[
-    (i - partidos.length) % equipos.length
-  ];
-
-  partidos.push({
-    id: i + 1,
-    deporte: "⚽ Fútbol",
-    liga: "Partido",
-    local: equiposPartido[0],
-    visitante: equiposPartido[1],
-    hora: `${String(12 + (i % 12)).padStart(2, "0")}:00`,
-    estado: "upcoming",
-    localScore: null,
-    visitanteScore: null
-  });
+  return String(value).replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]
+  );
 
 }
 
 
-// Fecha
+function localDate() {
 
-function mostrarFecha() {
+  const now = new Date();
 
-  const fecha = new Date();
+  const year =
+    now.getFullYear();
 
-  const opciones = {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  };
+  const month =
+    String(now.getMonth() + 1)
+      .padStart(2, "0");
 
-  document.getElementById("today").textContent =
-    fecha.toLocaleDateString("es-ES", opciones);
+  const day =
+    String(now.getDate())
+      .padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+
 }
 
 
-// Crear tarjeta
+function formatDate(date) {
 
-function crearPartido(partido) {
+  return new Date(date)
+    .toLocaleTimeString(
+      "es",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
 
-  let estadoTexto = "";
-  let estadoClase = "";
+}
 
-  if (partido.estado === "live") {
 
-    estadoTexto = "🔴 EN VIVO";
-    estadoClase = "status-live";
+function updateDate() {
 
-  } else if (partido.estado === "finished") {
+  const now =
+    new Date();
 
-    estadoTexto = "FINAL";
-    estadoClase = "status-finished";
+  $("today").textContent =
+    now.toLocaleDateString(
+      "es",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }
+    );
 
-  } else {
+}
 
-    estadoTexto = "PRÓXIMO";
+
+function statusLabel(match) {
+
+  if (match.state === "live") {
+
+    return `
+      <span class="status-live">
+        🔴 EN VIVO
+        ${
+          match.elapsed != null
+            ? `${escapeHTML(match.elapsed)}'`
+            : ""
+        }
+      </span>
+    `;
 
   }
 
 
-  let marcador = "";
+  if (match.state === "finished") {
 
-  if (
-    partido.estado === "live" ||
-    partido.estado === "finished"
-  ) {
-
-    marcador =
-      `${partido.localScore ?? 0} - ${partido.visitanteScore ?? 0}`;
-
-  } else {
-
-    marcador = `
-      <span class="time">
-        ${partido.hora}
+    return `
+      <span class="status-finished">
+        FINALIZADO
       </span>
     `;
 
@@ -195,165 +108,1045 @@ function crearPartido(partido) {
 
 
   return `
-    <article class="game">
+    <span>
+      PRÓXIMO
+    </span>
+  `;
+
+}
+
+
+function createCard(match) {
+
+  const live =
+    match.state === "live";
+
+  const finished =
+    match.state === "finished";
+
+
+  const score =
+    live || finished
+
+      ? `
+        ${match.homeScore ?? 0}
+        -
+        ${match.awayScore ?? 0}
+      `
+
+      : `
+        <span class="time">
+          ${formatDate(match.date)}
+        </span>
+      `;
+
+
+  const homeLogo =
+    match.homeLogo
+
+      ? `
+        <img
+          src="${escapeHTML(match.homeLogo)}"
+          alt=""
+          class="team-logo"
+        >
+      `
+
+      : "";
+
+
+  const awayLogo =
+    match.awayLogo
+
+      ? `
+        <img
+          src="${escapeHTML(match.awayLogo)}"
+          alt=""
+          class="team-logo"
+        >
+      `
+
+      : "";
+
+
+  return `
+
+    <article
+      class="game ${live ? "live-game" : ""}"
+
+      ${
+        live
+          ? `
+            role="button"
+            tabindex="0"
+            data-id="${match.id}"
+          `
+          : ""
+      }
+    >
 
       <div class="game-top">
 
         <span class="competition">
-          ${partido.deporte} · ${partido.liga}
+
+          ${escapeHTML(match.country)}
+
+          ·
+
+          ${escapeHTML(match.league)}
+
         </span>
 
-        <span class="${estadoClase}">
-          ${estadoTexto}
-        </span>
+        ${statusLabel(match)}
 
       </div>
 
 
       <div class="match">
 
+
         <div class="team">
-          ${partido.local}
+
+          ${homeLogo}
+
+          <span>
+            ${escapeHTML(match.home)}
+          </span>
+
         </div>
 
 
         <div class="score">
-          ${marcador}
+
+          ${score}
+
         </div>
 
 
-        <div class="team">
-          ${partido.visitante}
+        <div class="team away-team">
+
+          <span>
+            ${escapeHTML(match.away)}
+          </span>
+
+          ${awayLogo}
+
         </div>
+
 
       </div>
 
+
+      ${
+        live
+          ? `
+            <div class="tap-hint">
+              Ver goleadores y minutos ↗
+            </div>
+          `
+          : ""
+      }
+
     </article>
+
   `;
+
 }
 
 
-// Mostrar partidos
+function filteredMatches() {
 
-function mostrarPartidos(lista = partidos) {
+  return partidos.filter(match => {
 
-  const live = lista.filter(p => p.estado === "live");
+    const text = `
 
-  const upcoming = lista.filter(p => p.estado === "upcoming");
+      ${match.home}
 
-  const finished = lista.filter(p => p.estado === "finished");
+      ${match.away}
 
+      ${match.league}
 
-  document.getElementById("liveGames").innerHTML =
-    live.length
-      ? live.map(crearPartido).join("")
-      : `<div class="no-games">No hay partidos en vivo.</div>`;
+      ${match.country}
 
-
-  document.getElementById("upcomingGames").innerHTML =
-    upcoming.length
-      ? upcoming.map(crearPartido).join("")
-      : `<div class="no-games">No hay próximos partidos.</div>`;
+    `.toLowerCase();
 
 
-  document.getElementById("finishedGames").innerHTML =
-    finished.length
-      ? finished.map(crearPartido).join("")
-      : `<div class="no-games">No hay resultados todavía.</div>`;
+    const matchesSearch =
+      text.includes(busqueda);
 
 
-  document.getElementById("liveCount").textContent =
-    live.length;
+    const matchesSection =
 
-  document.getElementById("liveLabel").textContent =
-    `${live.length} partidos`;
+      seccionActual === "todos"
 
-  document.getElementById("upcomingLabel").textContent =
-    `${upcoming.length} partidos`;
+      ||
 
-  document.getElementById("finishedLabel").textContent =
-    `${finished.length} partidos`;
-}
+      match.state === seccionActual;
 
 
-// Buscador
-
-document.getElementById("search").addEventListener(
-  "input",
-  function () {
-
-    const texto = this.value.toLowerCase();
-
-    const filtrados = partidos.filter(p =>
-      p.local.toLowerCase().includes(texto) ||
-      p.visitante.toLowerCase().includes(texto) ||
-      p.liga.toLowerCase().includes(texto)
+    return (
+      matchesSearch &&
+      matchesSection
     );
 
-    mostrarPartidos(filtrados);
+  });
+
+}
+
+
+function render() {
+
+  const list =
+    filteredMatches();
+
+
+  const live =
+    list.filter(
+      m => m.state === "live"
+    );
+
+
+  const upcoming =
+    list.filter(
+      m => m.state === "upcoming"
+    );
+
+
+  const finished =
+    list.filter(
+      m => m.state === "finished"
+    );
+
+
+  function show(id, items) {
+
+    $(id).innerHTML =
+
+      items.length
+
+        ? items
+            .map(createCard)
+            .join("")
+
+        : `
+          <div class="no-games">
+            No hay partidos disponibles.
+          </div>
+        `;
+
+  }
+
+
+  if (seccionActual === "todos") {
+
+    show(
+      "liveGames",
+      live
+    );
+
+    show(
+      "upcomingGames",
+      upcoming
+    );
+
+    show(
+      "finishedGames",
+      finished
+    );
+
+
+    $("liveSection")
+      .style.display = "";
+
+
+    $("upcomingSection")
+      .style.display = "";
+
+
+    $("finishedSection")
+      .style.display = "";
+
+  }
+
+
+  else {
+
+    $("liveSection")
+      .style.display =
+        seccionActual === "live"
+          ? ""
+          : "none";
+
+
+    $("upcomingSection")
+      .style.display =
+        seccionActual === "upcoming"
+          ? ""
+          : "none";
+
+
+    $("finishedSection")
+      .style.display =
+        seccionActual === "finished"
+          ? ""
+          : "none";
+
+
+    if (
+      seccionActual === "live"
+    ) {
+
+      show(
+        "liveGames",
+        live
+      );
+
+    }
+
+
+    if (
+      seccionActual === "upcoming"
+    ) {
+
+      show(
+        "upcomingGames",
+        upcoming
+      );
+
+    }
+
+
+    if (
+      seccionActual === "finished"
+    ) {
+
+      show(
+        "finishedGames",
+        finished
+      );
+
+    }
+
+  }
+
+
+  const totalLive =
+    partidos.filter(
+      m => m.state === "live"
+    ).length;
+
+
+  $("liveCount").textContent =
+    totalLive;
+
+
+  $("liveLabel").textContent =
+    `${live.length} partidos`;
+
+
+  $("upcomingLabel").textContent =
+    `${upcoming.length} partidos`;
+
+
+  $("finishedLabel").textContent =
+    `${finished.length} partidos`;
+
+}
+
+
+async function loadMatches() {
+
+  const date =
+    localDate();
+
+
+  fechaActual =
+    date;
+
+
+  updateDate();
+
+
+  $("loading")
+    .style.display = "block";
+
+
+  $("errorBox")
+    .style.display = "none";
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/matches?date=${date}`
+      );
+
+
+    if (!response.ok) {
+
+      const data =
+        await response
+          .json()
+          .catch(() => ({}));
+
+      throw new Error(
+        data.error ||
+        "No se pudieron obtener los partidos."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    partidos =
+      data.matches || [];
+
+
+    $("loading")
+      .style.display = "none";
+
+
+    $("liveSection")
+      .style.display = "";
+
+
+    $("upcomingSection")
+      .style.display = "";
+
+
+    $("finishedSection")
+      .style.display = "";
+
+
+    render();
+
+  }
+
+
+  catch (error) {
+
+    console.error(error);
+
+
+    $("loading")
+      .style.display = "none";
+
+
+    $("errorBox")
+      .style.display = "block";
+
+
+    $("errorText")
+      .textContent =
+        error.message;
+
+
+    $("liveSection")
+      .style.display = "none";
+
+
+    $("upcomingSection")
+      .style.display = "none";
+
+
+    $("finishedSection")
+      .style.display = "none";
+
+  }
+
+}
+
+
+// =================================
+// MODAL
+// =================================
+
+
+const modal =
+  document.createElement("div");
+
+
+modal.id =
+  "matchModal";
+
+
+modal.className =
+  "modal";
+
+
+modal.style.display =
+  "none";
+
+
+modal.innerHTML = `
+
+  <div
+    class="modal-backdrop"
+  ></div>
+
+
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-modal="true"
+  >
+
+    <button
+      class="modal-close"
+      aria-label="Cerrar"
+    >
+      ✕
+    </button>
+
+
+    <div
+      id="modalBody"
+    ></div>
+
+  </div>
+
+`;
+
+
+document.body.appendChild(
+  modal
+);
+
+
+function closeModal() {
+
+  modal.style.display =
+    "none";
+
+  document.body.style.overflow =
+    "";
+
+}
+
+
+modal
+  .querySelector(".modal-close")
+  .addEventListener(
+    "click",
+    closeModal
+  );
+
+
+modal
+  .querySelector(".modal-backdrop")
+  .addEventListener(
+    "click",
+    closeModal
+  );
+
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closeModal();
+
+    }
 
   }
 );
 
 
-// Navegación
+async function openMatch(id) {
 
-document.querySelectorAll(".nav-btn").forEach(
-  boton => {
-
-    boton.addEventListener("click", () => {
-
-      document
-        .querySelectorAll(".nav-btn")
-        .forEach(b => b.classList.remove("active"));
-
-      boton.classList.add("active");
+  const match =
+    partidos.find(
+      m =>
+        String(m.id) ===
+        String(id)
+    );
 
 
-      const seccion = boton.dataset.section;
+  if (!match) return;
 
 
-      if (seccion === "todos") {
+  modal.style.display =
+    "flex";
 
-        document.getElementById("liveSection").style.display = "block";
-        document.getElementById("upcomingSection").style.display = "block";
-        document.getElementById("finishedSection").style.display = "block";
 
+  document.body.style.overflow =
+    "hidden";
+
+
+  $("modalBody").innerHTML = `
+
+    <p class="small-title">
+
+      ${escapeHTML(
+        match.league
+      )}
+
+    </p>
+
+
+    <h2>
+      Detalles del partido
+    </h2>
+
+
+    <div class="modal-score">
+
+      <span>
+        ${escapeHTML(
+          match.home
+        )}
+      </span>
+
+
+      <strong>
+
+        ${match.homeScore ?? 0}
+
+        -
+
+        ${match.awayScore ?? 0}
+
+      </strong>
+
+
+      <span>
+
+        ${escapeHTML(
+          match.away
+        )}
+
+      </span>
+
+    </div>
+
+
+    <p class="status-live">
+
+      🔴 EN VIVO
+
+      ${
+        match.elapsed != null
+          ? `${escapeHTML(
+              match.elapsed
+            )}'`
+          : ""
       }
 
-
-      if (seccion === "live") {
-
-        document.getElementById("liveSection").style.display = "block";
-        document.getElementById("upcomingSection").style.display = "none";
-        document.getElementById("finishedSection").style.display = "none";
-
-      }
+    </p>
 
 
-      if (seccion === "upcoming") {
-
-        document.getElementById("liveSection").style.display = "none";
-        document.getElementById("upcomingSection").style.display = "block";
-        document.getElementById("finishedSection").style.display = "none";
-
-      }
+    <h3>
+      ⚽ Goleadores
+    </h3>
 
 
-      if (seccion === "finished") {
+    <p class="modal-loading">
 
-        document.getElementById("liveSection").style.display = "none";
-        document.getElementById("upcomingSection").style.display = "none";
-        document.getElementById("finishedSection").style.display = "block";
+      Cargando eventos...
 
-      }
+    </p>
 
-    });
+  `;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/matches/${id}/events`
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "No se pudieron cargar los eventos."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const goals =
+      data.goals || [];
+
+
+    const goalList =
+
+      goals.length
+
+        ? goals
+            .map(
+              goal => `
+
+                <div
+                  class="goal-row"
+                >
+
+                  <span>
+                    ⚽
+                  </span>
+
+
+                  <div>
+
+                    <strong>
+                      ${escapeHTML(
+                        goal.player
+                      )}
+                    </strong>
+
+
+                    <small>
+
+                      ${escapeHTML(
+                        goal.team
+                      )}
+
+                    </small>
+
+
+                    ${
+                      goal.assist
+                        ? `
+                          <small>
+                            Asistencia:
+                            ${escapeHTML(
+                              goal.assist
+                            )}
+                          </small>
+                        `
+                        : ""
+                    }
+
+                  </div>
+
+
+                  <b>
+
+                    ${goal.minute ?? "?"}
+
+                    ${
+                      goal.extra
+                        ? `+${goal.extra}`
+                        : ""
+                    }'
+
+                  </b>
+
+                </div>
+
+              `
+            )
+            .join("")
+
+        : `
+
+          <p
+            class="modal-loading"
+          >
+            Todavía no hay goles registrados.
+          </p>
+
+        `;
+
+
+    $("modalBody").innerHTML = `
+
+      <p class="small-title">
+
+        ${escapeHTML(
+          match.league
+        )}
+
+      </p>
+
+
+      <h2>
+        Detalles del partido
+      </h2>
+
+
+      <div class="modal-score">
+
+        <span>
+
+          ${escapeHTML(
+            match.home
+          )}
+
+        </span>
+
+
+        <strong>
+
+          ${match.homeScore ?? 0}
+
+          -
+
+          ${match.awayScore ?? 0}
+
+        </strong>
+
+
+        <span>
+
+          ${escapeHTML(
+            match.away
+          )}
+
+        </span>
+
+      </div>
+
+
+      <p class="status-live">
+
+        🔴 EN VIVO
+
+        ${
+          match.elapsed != null
+            ? `${escapeHTML(
+                match.elapsed
+              )}'`
+            : ""
+        }
+
+      </p>
+
+
+      <h3>
+        ⚽ Goleadores
+      </h3>
+
+
+      ${goalList}
+
+    `;
+
+  }
+
+
+  catch (error) {
+
+    console.error(error);
+
+
+    $("modalBody")
+      .insertAdjacentHTML(
+        "beforeend",
+
+        `
+
+          <p
+            class="modal-loading"
+          >
+
+            No se pudieron cargar
+            los goleadores.
+
+          </p>
+
+        `
+      );
+
+  }
+
+}
+
+
+// =================================
+// CLICK EN PARTIDO EN VIVO
+// =================================
+
+
+document.addEventListener(
+  "click",
+  event => {
+
+    const card =
+      event.target.closest(
+        ".live-game"
+      );
+
+
+    if (card) {
+
+      openMatch(
+        card.dataset.id
+      );
+
+    }
 
   }
 );
 
 
-mostrarFecha();
+document.addEventListener(
+  "keydown",
+  event => {
 
-mostrarPartidos();
+    const card =
+      event.target.closest(
+        ".live-game"
+      );
+
+
+    if (
+      card &&
+      (
+        event.key === "Enter" ||
+        event.key === " "
+      )
+    ) {
+
+      event.preventDefault();
+
+      openMatch(
+        card.dataset.id
+      );
+
+    }
+
+  }
+);
+
+
+// =================================
+// NAVEGACIÓN
+// =================================
+
+
+document
+  .querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(
+            ".nav-btn"
+          )
+          .forEach(
+            b =>
+              b.classList.remove(
+                "active"
+              )
+          );
+
+
+        button.classList.add(
+          "active"
+        );
+
+
+        seccionActual =
+          button.dataset.section;
+
+
+        render();
+
+      }
+    );
+
+  });
+
+
+// =================================
+// BUSCADOR
+// =================================
+
+
+$("search")
+  .addEventListener(
+    "input",
+    event => {
+
+      busqueda =
+        event.target.value
+          .trim()
+          .toLowerCase();
+
+
+      render();
+
+    }
+  );
+
+
+// =================================
+// REINTENTAR
+// =================================
+
+
+$("retryButton")
+  .addEventListener(
+    "click",
+    loadMatches
+  );
+
+
+// =================================
+// BOTÓN HOY
+// =================================
+
+
+$("dateButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      loadMatches();
+
+    }
+  );
+
+
+// =================================
+// INICIO
+// =================================
+
+
+loadMatches();
+
+
+// Actualizar cada minuto
+
+setInterval(
+  () => {
+
+    const nuevaFecha =
+      localDate();
+
+
+    if (
+      nuevaFecha !==
+      fechaActual
+    ) {
+
+      loadMatches();
+
+    }
+
+    else {
+
+      loadMatches();
+
+    }
+
+  },
+  60000
+);
